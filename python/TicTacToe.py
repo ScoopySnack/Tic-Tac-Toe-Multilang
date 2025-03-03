@@ -1,9 +1,10 @@
-import tkinter as tk
-from tkinter import font
-from itertools import cycle
-from typing  import NamedTuple
-
 """A tic-tac-toe game built with Python and Tkinter."""
+
+import tkinter as tk
+from itertools import cycle
+from tkinter import font
+from typing import NamedTuple
+
 
 class Player(NamedTuple):
     label: str
@@ -92,15 +93,6 @@ class TicTacToeGame:
         self._has_winner = False
         self.winner_combo = []
 
-    def reset_board(self):
-        """Reset the game's board to play again."""
-        self.game.reset_game()
-        self._update_display(msg="Ready?")
-        for button in self._cells.keys():
-            button.config(highlightbackground="lightblue")
-            button.config(text="")
-            button.config(fg="black")
-
 
 
 class TicTacToeBoard(tk.Tk):
@@ -113,6 +105,14 @@ class TicTacToeBoard(tk.Tk):
         self._create_board_display()
         self._create_board_grid()
 
+    def _create_menu(self):
+        menu_bar = tk.Menu(master=self)
+        self.config(menu=menu_bar)
+        file_menu = tk.Menu(master=menu_bar)
+        file_menu.add_command(label="Play Again", command=self.reset_board)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=quit)
+        menu_bar.add_cascade(label="File", menu=file_menu)
 
     def _create_board_display(self):
         display_frame = tk.Frame(master=self)
@@ -159,7 +159,7 @@ class TicTacToeBoard(tk.Tk):
             self._update_button(clicked_btn)
             self.game.process_move(move)
             if self.game.is_tied():
-                self._update_display(msg="Tied game!", color="red")
+                self._update_display(msg="Ισσοπαλία!", color="red")
             elif self.game.has_winner():
                 self._highlight_cells()
                 msg = f'Ο παίκτης "{self.game.current_player.label}" κέρδισε!'
@@ -170,31 +170,41 @@ class TicTacToeBoard(tk.Tk):
                 msg = f"Η σειρά του: {self.game.current_player.label}"
                 self._update_display(msg)
 
+
     def _update_button(self, clicked_btn):
-        clicked_btn.config(text = self.game.current_player.label)
-        clicked_btn.cnfig(fg = self.game.current_player.color)
+
+        clicked_btn.config(text=self.game.current_player.label)
+
+        clicked_btn.config(fg=self.game.current_player.color)
+
+
 
     def _update_display(self, msg, color="black"):
+
         self.display["text"] = msg
         self.display["fg"] = color
 
+
+
     def _highlight_cells(self):
-        for button, (row, col) in self._cells.items():
-            if (row, col) in self.game.winner_combo:
+
+        for button, coordinates in self._cells.items():
+
+            if coordinates in self.game.winner_combo:
+
                 button.config(highlightbackground="red")
 
-    def _create_menu(self):
-        menu = tk.Menu(self)
-        self.config(menu=menu)
-        file_menu = tk.Menu(master=menu)
-        file_menu.add_command(label="Νέο παιχνίδι", command=self._new_game)
-        file_menu.add_separator()
-        file_menu.add_command(label="Έξοδος", command=self.quit)
-        menu.add_cascade(label="Αρχείο", menu=file_menu)
+
+    def reset_board(self):
+        self.game.reset_game()
+        self._update_display(msg="Ready?")
+        for button in self._cells.keys():
+            button.config(highlightbackground="lightblue")
+            button.config(text="")
+            button.config(fg="black")
 
 
 def main():
-    """Create the game's board and run its main loop."""
     game = TicTacToeGame()
     board = TicTacToeBoard(game)
     board.mainloop()
